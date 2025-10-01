@@ -5,7 +5,7 @@ from db_helper import DB, DB_CONFIG
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QCheckBox, QWidget, QHBoxLayout
-
+from login_dialog import LoginDialog
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -81,8 +81,13 @@ class MainWindow(QMainWindow):
         btn_layout.addWidget(self.update_btn)
         vbox.addLayout(btn_layout)
 
-
+        self.logout_btn = QPushButton("로그아웃")
+        self.logout_btn.clicked.connect(self.logout)
+        btn_layout.addWidget(self.logout_btn)
+        
         vbox.addWidget(self.table)
+
+
 
         self.load_data()
     def on_check_state_changed(self, row, state):
@@ -240,3 +245,34 @@ class MainWindow(QMainWindow):
         else:
             model.select(idx, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
             self.fruit_name_input.clear()
+
+
+    # ✅ 로그아웃 함수
+    def logout(self):
+        msg = QMessageBox(self)
+        msg.setWindowTitle("로그아웃")
+        msg.setText("정말 로그아웃 하시겠습니까?")
+
+        # 버튼 객체를 직접 생성
+        yes_button = msg.addButton("예", QMessageBox.AcceptRole)
+        no_button = msg.addButton("아니오", QMessageBox.RejectRole)
+
+        msg.exec_()  # 메시지박스 실행
+
+        # 눌린 버튼 확인
+        if msg.clickedButton() == yes_button:
+            
+            # 로그아웃 처리
+            self.is_logged_in = False
+            self.username = None
+            self.fruit_name_input.clear()
+            self.stock_input.clear()
+            self.price_input.clear()
+            self.table.setRowCount(0)
+            QMessageBox.information(self, "로그아웃", "로그아웃되었습니다.")
+            self.login_window = LoginDialog()  # 로그인 창 다시 생성
+            self.login_window.show()
+            self.close()  # 현재 메인창 닫기
+        else:
+            # 취소 선택 시 아무 작업도 안 함
+            pass
