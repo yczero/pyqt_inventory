@@ -67,6 +67,15 @@ class DB:
                 print("수정 오류:", e)
                 conn.rollback()
                 return False   
+    
+    
+    def exists_fruit(self, fruit_name):
+        sql = "SELECT COUNT(*) FROM fruits WHERE fruit_name=%s"
+        with self.connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, (fruit_name,))
+                count, = cur.fetchone()
+                return count > 0
 
 
 

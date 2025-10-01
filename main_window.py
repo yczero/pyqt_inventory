@@ -90,6 +90,10 @@ class MainWindow(QMainWindow):
 
 
         self.load_data()
+
+
+
+
     def on_check_state_changed(self, row, state):
         model = self.table.selectionModel()
         idx = self.table.model().index(row, 0)
@@ -136,6 +140,13 @@ class MainWindow(QMainWindow):
         if not fruit_name:
             QMessageBox.warning(self, "경고", "과일명을 입력하세요")
             return
+        
+    # ✅ 중복 체크
+        if self.db.exists_fruit(fruit_name):
+            QMessageBox.warning(self, "경고", f"'{fruit_name}'은 이미 존재합니다!")
+            return
+
+
         try:
             stock = int(stock_text) if stock_text else 0
         except ValueError:
