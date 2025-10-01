@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QMainWindow,QHeaderView, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QMessageBox, QCheckBox
 from db_helper import DB, DB_CONFIG
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QCheckBox, QWidget, QHBoxLayout
 
 class MainWindow(QMainWindow):
@@ -30,6 +31,7 @@ class MainWindow(QMainWindow):
         self.stock_input.setPlaceholderText("재고 입력")  # 새로 추가
 
 
+
         self.add_btn = QPushButton("추가")
         self.add_btn.clicked.connect(self.add_fruit)
 
@@ -42,8 +44,8 @@ class MainWindow(QMainWindow):
 
         # --- 테이블 ---
         self.table = QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["ID", "과일명", "재고", "가격"])
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["선택","ID", "과일명", "재고", "가격"])
         self.table.setEditTriggers(self.table.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)  # 행 단위 선택
         self.table.verticalHeader().setVisible(False)
@@ -83,6 +85,16 @@ class MainWindow(QMainWindow):
         vbox.addWidget(self.table)
 
         self.load_data()
+    def on_check_state_changed(self, row, state):
+        model = self.table.selectionModel()
+        idx = self.table.model().index(row, 0)
+        if state == Qt.Checked:
+            # 해당 row 전체 선택
+            model.select(idx, QItemSelectionModel.Select | QItemSelectionModel.Rows)
+            # 현재 포커스를 과일명 셀로 이동 (so currentRow 가 설정됨)
+            self.table.setCurrentCell(row, 2)
+        else:
+            model.select(idx, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
 
 
     def load_data(self):    
@@ -90,11 +102,25 @@ class MainWindow(QMainWindow):
         self.table.setRowCount(len(rows))
 
         for row, (fruit_id, fruit_name, stock, price) in enumerate(rows):
+  # 체크박스 추가
+            chk = QCheckBox()
+            chk.setChecked(False)
+            chk.stateChanged.connect(lambda state, r=row: self.on_check_state_changed(r, state))
 
-            self.table.setItem(row, 0, QTableWidgetItem(str(fruit_id)))
-            self.table.setItem(row, 1, QTableWidgetItem(fruit_name))
-            self.table.setItem(row, 2, QTableWidgetItem(str(stock))) 
-            self.table.setItem(row, 3, QTableWidgetItem(str(price))) 
+                        # 체크박스를 셀 위젯으로 감싸서 중앙 정렬
+            chk_widget = QWidget()
+            layout = QHBoxLayout(chk_widget)
+            layout.addWidget(chk)
+            layout.setAlignment(Qt.AlignCenter)
+            layout.setContentsMargins(0, 0, 0, 0)
+            chk_widget.setLayout(layout)
+            self.table.setCellWidget(row, 0, chk_widget)
+
+
+            self.table.setItem(row, 1, QTableWidgetItem(str(fruit_id)))
+            self.table.setItem(row, 2, QTableWidgetItem(fruit_name))
+            self.table.setItem(row, 3, QTableWidgetItem(str(stock))) 
+            self.table.setItem(row, 4, QTableWidgetItem(str(price))) 
         # self.table.resizeColumnsToContents()
         # self.table.resizeRowsToContents()
         
@@ -134,7 +160,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "경고", " 삭제 과일 선택 ")
             return
 
-        fruit_name_item = self.table.item(selected,1)
+        fruit_name_item = self.table.item(selected,2)
         if not fruit_name_item:
             return
         
@@ -157,7 +183,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "경고", "수정할 과일을 선택하세요")
             return
 
-        fruit_name = self.table.item(selected, 1).text()
+        fruit_name = self.table.item(selected, 2).text()
 
         try:
             stock = int(self.stock_input.text())
@@ -179,9 +205,9 @@ class MainWindow(QMainWindow):
 
 
 # 새로 추가하는 함수
-    def fill_inputs(self, row, column):
+    def fill_inputs(self, row, column=None):
     # 선택한 행(row)의 값 가져오기
-        fruit_name = self.table.item(row, 1).text()
+        fruit_name = self.table.item(row, 2).text()
         # stock = self.table.item(row, 2).text()
         # price = self.table.item(row, 3).text()
 
@@ -189,3 +215,28 @@ class MainWindow(QMainWindow):
         self.fruit_name_input.setText(fruit_name)
         # self.stock_input.setText(stock)
         # self.price_input.setText(price)
+
+
+    def on_check_state_changed(self, row, state):
+        model = self.table.selectionModel()
+        idx = self.table.model().index(row, 0)
+        if state == Qt.Checked:
+            for r in range(self.table.rowCount()):
+                if r != row:
+                    chk_widget = self.table.cellWidget(r, 0)
+                    if chk_widget:
+                        chk = chk_widget.findChild(QCheckBox)
+                        if chk and chk.isChecked():
+                            chk.blockSignals(True)  # 시그널 임시 차단
+                            chk.setChecked(False)
+                            chk.blockSignals(False)
+            # 해당 row 선택
+            model.select(idx, QItemSelectionModel.Select | QItemSelectionModel.Rows)
+            self.table.setCurrentCell(row, 2)
+
+            # 👉 체크되면 입력창에 값 채우기
+            self.fill_inputs(row,2)
+
+        else:
+            model.select(idx, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
+            self.fruit_name_input.clear()
