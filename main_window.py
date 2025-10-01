@@ -94,17 +94,6 @@ class MainWindow(QMainWindow):
 
 
 
-    def on_check_state_changed(self, row, state):
-        model = self.table.selectionModel()
-        idx = self.table.model().index(row, 0)
-        if state == Qt.Checked:
-            # 해당 row 전체 선택
-            model.select(idx, QItemSelectionModel.Select | QItemSelectionModel.Rows)
-            # 현재 포커스를 과일명 셀로 이동 (so currentRow 가 설정됨)
-            self.table.setCurrentCell(row, 2)
-        else:
-            model.select(idx, QItemSelectionModel.Deselect | QItemSelectionModel.Rows)
-
 
     def load_data(self):    
         rows = self.db.fetch_all_fruits()
@@ -231,7 +220,6 @@ class MainWindow(QMainWindow):
         self.fruit_name_input.setText(fruit_name)
         # self.stock_input.setText(stock)
         # self.price_input.setText(price)
-
 
     def on_check_state_changed(self, row, state):
         model = self.table.selectionModel()
