@@ -1,8 +1,9 @@
 
 # main_window.py
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QMainWindow,QHeaderView, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QMessageBox, QCheckBox
 from db_helper import DB, DB_CONFIG
-
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QCheckBox, QWidget, QHBoxLayout
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,9 +45,19 @@ class MainWindow(QMainWindow):
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["ID", "과일명", "재고", "가격"])
         self.table.setEditTriggers(self.table.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)  # 행 단위 선택
         self.table.verticalHeader().setVisible(False)
+
         
-        
+        # self.table.resizeColumnsToContents()
+        # self.table.resizeRowsToContents()
+
+
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.horizontalHeader().setStretchLastSection(True)
+
+
+
         vbox.addLayout(form_box)
         vbox.addWidget(self.table)
 
@@ -55,14 +66,15 @@ class MainWindow(QMainWindow):
         # 버튼 이벤트
         
         btn_layout = QHBoxLayout()
-        self.load_btn = QPushButton("재고 불러오기")
-        self.load_btn.clicked.connect(self.load_data)
+        # self.load_btn = QPushButton("재고 불러오기")
+        # self.load_btn.clicked.connect(self.load_data)
 
         self.delete_btn = QPushButton("삭제")
         self.delete_btn.clicked.connect(self.delete_fruit)
         self.update_btn = QPushButton("수정")
         self.update_btn.clicked.connect(self.update_fruit)
-        btn_layout.addWidget(self.load_btn)
+        self.table.cellClicked.connect(self.fill_inputs)
+        # btn_layout.addWidget(self.load_btn)
         btn_layout.addWidget(self.delete_btn)
         btn_layout.addWidget(self.update_btn)
         vbox.addLayout(btn_layout)
@@ -78,12 +90,13 @@ class MainWindow(QMainWindow):
         self.table.setRowCount(len(rows))
 
         for row, (fruit_id, fruit_name, stock, price) in enumerate(rows):
+
             self.table.setItem(row, 0, QTableWidgetItem(str(fruit_id)))
             self.table.setItem(row, 1, QTableWidgetItem(fruit_name))
             self.table.setItem(row, 2, QTableWidgetItem(str(stock))) 
             self.table.setItem(row, 3, QTableWidgetItem(str(price))) 
-        self.table.resizeColumnsToContents()
-        
+        # self.table.resizeColumnsToContents()
+        # self.table.resizeRowsToContents()
         
     def add_fruit(self):
         fruit_name = self.fruit_name_input.text().strip()
@@ -133,6 +146,8 @@ class MainWindow(QMainWindow):
             self.load_data()
         else:
             QMessageBox.critical(self, "실패", "삭제 중 오류 발생")
+
+
     
 
 
@@ -160,7 +175,17 @@ class MainWindow(QMainWindow):
             self.load_data()
         else:
             QMessageBox.critical(self, "실패", "수정 중 오류 발생")
-        
 
 
 
+# 새로 추가하는 함수
+    def fill_inputs(self, row, column):
+    # 선택한 행(row)의 값 가져오기
+        fruit_name = self.table.item(row, 1).text()
+        # stock = self.table.item(row, 2).text()
+        # price = self.table.item(row, 3).text()
+
+        # 입력창에 값 채우기
+        self.fruit_name_input.setText(fruit_name)
+        # self.stock_input.setText(stock)
+        # self.price_input.setText(price)
