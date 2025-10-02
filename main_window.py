@@ -1,11 +1,15 @@
 
 # main_window.py
 from PyQt5.QtWidgets import QMainWindow,QHeaderView, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QMessageBox, QCheckBox
-from db_helper import DB, DB_CONFIG
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QCheckBox, QWidget, QHBoxLayout
 from login_dialog import LoginDialog
+from db_helper import DB, DB_CONFIG
+from update_dialog import *
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -86,14 +90,7 @@ class MainWindow(QMainWindow):
         btn_layout.addWidget(self.logout_btn)
         
         vbox.addWidget(self.table)
-
-
-
         self.load_data()
-
-
-
-
 
     def load_data(self):    
         rows = self.db.fetch_all_fruits()
@@ -130,7 +127,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "경고", "과일명을 입력하세요")
             return
         
-    # ✅ 중복 체크
+    #  중복 체크
         if self.db.exists_fruit(fruit_name):
             QMessageBox.warning(self, "경고", f"'{fruit_name}'은 이미 존재합니다!")
             return
@@ -190,10 +187,6 @@ class MainWindow(QMainWindow):
         else:
             QMessageBox.critical(self, "실패", "삭제 중 오류 발생")
 
-
-    
-
-
     def update_fruit(self):
         selected = self.table.currentRow()
         if selected < 0:
@@ -222,7 +215,6 @@ class MainWindow(QMainWindow):
             self.load_data()
         else:
             QMessageBox.critical(self, "실패", "수정 중 오류 발생")
-
 
 
 # 새로 추가하는 함수
@@ -254,7 +246,7 @@ class MainWindow(QMainWindow):
             model.select(idx, QItemSelectionModel.Select | QItemSelectionModel.Rows)
             self.table.setCurrentCell(row, 2)
 
-            # 👉 체크되면 입력창에 값 채우기
+            # 체크되면 입력창에 값 채우기
             self.fill_inputs(row,2)
 
         else:
@@ -262,7 +254,7 @@ class MainWindow(QMainWindow):
             self.fruit_name_input.clear()
 
 
-    # ✅ 로그아웃 함수
+    #  로그아웃 함수
     def logout(self):
         msg = QMessageBox(self)
         msg.setWindowTitle("로그아웃")
