@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
         self.delete_btn.clicked.connect(self.delete_fruit)
         self.update_btn = QPushButton("수정")
         self.update_btn.clicked.connect(self.update_fruit)
-        self.table.cellClicked.connect(self.fill_inputs)
+        # self.table.cellClicked.connect(self.fill_inputs)
         # btn_layout.addWidget(self.load_btn)
         btn_layout.addWidget(self.delete_btn)
         btn_layout.addWidget(self.update_btn)
@@ -160,12 +160,24 @@ class MainWindow(QMainWindow):
 
 
     def delete_fruit(self):
-        selected =self.table.currentRow()
-        if selected < 0:
-            QMessageBox.warning(self, "경고", " 삭제 과일 선택 ")
-            return
+        # selected =self.table.currentRow()
+        # if selected < 0:
+        #     QMessageBox.warning(self, "경고", " 삭제 과일 선택 ")
+        #     return
+        row_to_delete = None
+        for row in range(self.table.rowCount()):
+            chk_widget = self.table.cellWidget(row, 0)
+            if chk_widget:
+                chk = chk_widget.findChild(QCheckBox)
+                if chk and chk.isChecked():
+                    row_to_delete = row
+                    break
 
-        fruit_name_item = self.table.item(selected,2)
+        if row_to_delete is None:
+            QMessageBox.warning(self, "경고", "삭제할 과일을 체크하세요.")
+            return
+        fruit_name_item = self.table.item(row_to_delete, 2)
+        # fruit_name_item = self.table.item(selected,2)
         if not fruit_name_item:
             return
         
@@ -188,8 +200,12 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "경고", "수정할 과일을 선택하세요")
             return
 
-        fruit_name = self.table.item(selected, 2).text()
-
+        # fruit_name = self.table.item(selected, 2).text()
+        fruit_name = self.fruit_name_input.text().strip()
+        if not fruit_name:
+            QMessageBox.warning(self, "경고", "과일명이 비어 있습니다. 과일을 선택하세요")
+            return
+    
         try:
             stock = int(self.stock_input.text())
             price = int(self.price_input.text())
