@@ -72,15 +72,14 @@ class MainWindow(QMainWindow):
         # 버튼 이벤트
         
         btn_layout = QHBoxLayout()
-        # self.load_btn = QPushButton("재고 불러오기")
-        # self.load_btn.clicked.connect(self.load_data)
+
 
         self.delete_btn = QPushButton("삭제")
         self.delete_btn.clicked.connect(self.delete_fruit)
         self.update_btn = QPushButton("수정")
         self.update_btn.clicked.connect(self.update_fruit)
         # self.table.cellClicked.connect(self.fill_inputs)
-        # btn_layout.addWidget(self.load_btn)
+
         btn_layout.addWidget(self.delete_btn)
         btn_layout.addWidget(self.update_btn)
         vbox.addLayout(btn_layout)
@@ -157,10 +156,7 @@ class MainWindow(QMainWindow):
 
 
     def delete_fruit(self):
-        # selected =self.table.currentRow()
-        # if selected < 0:
-        #     QMessageBox.warning(self, "경고", " 삭제 과일 선택 ")
-        #     return
+
         row_to_delete = None
         for row in range(self.table.rowCount()):
             chk_widget = self.table.cellWidget(row, 0)
@@ -188,13 +184,21 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "실패", "삭제 중 오류 발생")
 
     def update_fruit(self):
+        selected = self.table.currentRow()
+        if selected < 0:
+            QMessageBox.warning(self, "경고", "수정할 과일을 선택하세요")
+            return
+
 
         dialog = UpdateDialog()
         if dialog.exec_() == UpdateDialog.Accepted :
+            
             self.load_data()
 
 
 
+
+    # def update_fruit(self):
         # selected = self.table.currentRow()
         # if selected < 0:
         #     QMessageBox.warning(self, "경고", "수정할 과일을 선택하세요")
@@ -223,8 +227,6 @@ class MainWindow(QMainWindow):
         # else:
         #     QMessageBox.critical(self, "실패", "수정 중 오류 발생")
 
-
-# 새로 추가하는 함수
     def fill_inputs(self, row, column=None):
     # 선택한 행(row)의 값 가져오기
         fruit_name = self.table.item(row, 2).text()
@@ -235,7 +237,7 @@ class MainWindow(QMainWindow):
         self.fruit_name_input.setText(fruit_name)
         # self.stock_input.setText(stock)
         # self.price_input.setText(price)
-
+# 지피티
     def on_check_state_changed(self, row, state):
         model = self.table.selectionModel()
         idx = self.table.model().index(row, 0)

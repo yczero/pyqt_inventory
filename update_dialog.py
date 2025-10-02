@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import *
 from db_helper import DB, DB_CONFIG
+# from main_window import *
 
 class UpdateDialog(QDialog):
     def __init__(self):
@@ -7,14 +8,15 @@ class UpdateDialog(QDialog):
         self.setWindowTitle("수정")
         self.db = DB(**DB_CONFIG)
 
-        # self.pid = QLineEdit()
+
         self.name = QLineEdit()
         self.price = QLineEdit()
         self.stock = QSpinBox()
 
         form = QFormLayout()
-        # form.addRow("아이디", self.pid)
+
         form.addRow("상품명", self.name)
+
         form.addRow("가격", self.price)
         form.addRow("재고", self.stock)
 
@@ -37,16 +39,14 @@ class UpdateDialog(QDialog):
 
     def submit(self):
         name = self.name.text().strip()
-        # stock = int(self.stock_input.text())
-        # price = int(self.price_input.text())
         price = self.price.text().strip()
-        stock = self.stock.text().strip()
+        stock = self.stock.value()
         if not name or not price or not stock:
             QMessageBox.warning(self, "오류", "데이터를 빠짐없이 입력하세요.")
             return
         ok = self.db.update_fruit(name, price, stock)
         if ok:
-            QMessageBox.information(self, "완료", "추가되었습니다.")
+            QMessageBox.information(self, "완료","수정되었습니다.")
         else:
-            QMessageBox.critical(self, "실패", "추가 중 오류가 발생했습니다.")
+            QMessageBox.critical(self, "실패","실패함")
         self.accept()
