@@ -188,33 +188,40 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "실패", "삭제 중 오류 발생")
 
     def update_fruit(self):
-        selected = self.table.currentRow()
-        if selected < 0:
-            QMessageBox.warning(self, "경고", "수정할 과일을 선택하세요")
-            return
 
-        # fruit_name = self.table.item(selected, 2).text()
-        fruit_name = self.fruit_name_input.text().strip()
-        if not fruit_name:
-            QMessageBox.warning(self, "경고", "과일명이 비어 있습니다. 과일을 선택하세요")
-            return
-    
-        try:
-            stock = int(self.stock_input.text())
-            price = int(self.price_input.text())
-        except ValueError:
-            QMessageBox.warning(self, "경고", "재고와 가격은 숫자로 입력하세요")
-            return
-
-        ok = self.db.update_fruit(fruit_name, stock, price)
-        if ok:
-            QMessageBox.information(self, "완료", f"{fruit_name} 수정됨")
-            self.fruit_name_input.clear()
-            self.stock_input.clear()
-            self.price_input.clear()
+        dialog = UpdateDialog()
+        if dialog.exec_() == UpdateDialog.Accepted :
             self.load_data()
-        else:
-            QMessageBox.critical(self, "실패", "수정 중 오류 발생")
+
+
+
+        # selected = self.table.currentRow()
+        # if selected < 0:
+        #     QMessageBox.warning(self, "경고", "수정할 과일을 선택하세요")
+        #     return
+
+        # # fruit_name = self.table.item(selected, 2).text()
+        # fruit_name = self.fruit_name_input.text().strip()
+        # if not fruit_name:
+        #     QMessageBox.warning(self, "경고", "과일명이 비어 있습니다. 과일을 선택하세요")
+        #     return
+    
+        # try:
+        #     stock = int(self.stock_input.text())
+        #     price = int(self.price_input.text())
+        # except ValueError:
+        #     QMessageBox.warning(self, "경고", "재고와 가격은 숫자로 입력하세요")
+        #     return
+
+        # ok = self.db.update_fruit(fruit_name, stock, price)
+        # if ok:
+        #     QMessageBox.information(self, "완료", f"{fruit_name} 수정됨")
+        #     self.fruit_name_input.clear()
+        #     self.stock_input.clear()
+        #     self.price_input.clear()
+        #     self.load_data()
+        # else:
+        #     QMessageBox.critical(self, "실패", "수정 중 오류 발생")
 
 
 # 새로 추가하는 함수
